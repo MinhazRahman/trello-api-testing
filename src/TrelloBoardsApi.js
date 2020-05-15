@@ -71,7 +71,7 @@ class TrelloBoardsApi {
     });
   }
 
-  /**
+  /** Delete a board by ID
  * @param {*} id
  * @param {*} [queryStrings={}]
  * @returns
@@ -79,6 +79,19 @@ class TrelloBoardsApi {
  */
   deleteBoard(id, queryStrings = {}) {
     return this.request.delete({
+      url: `${this.host}/1/boards/${id}`,
+      qs: queryStrings,
+    });
+  }
+
+  /** Get a board by ID
+ * @param {*} id
+ * @param {*} [queryStrings={}]
+ * @returns
+ * @memberof TrelloBoardsApi
+ */
+  getBoard(id, queryStrings = {}) {
+    return this.request.get({
       url: `${this.host}/1/boards/${id}`,
       qs: queryStrings,
     });
