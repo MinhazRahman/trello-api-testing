@@ -46,12 +46,12 @@ describe('Get a list of boards for a user', () => {
     // store the created board to boards array for cleaning up after each test
     boards.push(boardCreated);
 
-    // get a board by id
-    const boardRetrieved = await trelloBoardsApi.getBoard(boardCreated.id);
+    // get the list of boards
+    const listOfBoards = await trelloBoardsApi.getListOfBoards();
 
     // verify values from response
-    expect(boardRetrieved).to.have.property('id').is.a('string');
-    expect(boardRetrieved).to.have.property('name', boardToBeCreated.name);
-    expect(boardRetrieved).to.have.property('desc', boardToBeCreated.desc);
+    expect(listOfBoards[0]).to.have.property('id').is.a('string');
+    expect(listOfBoards[0]).to.have.property('name', listOfBoards[0].name);
+    expect(listOfBoards[0]).to.have.property('desc', listOfBoards[0].desc);
   });
 });
