@@ -22,8 +22,8 @@ describe('Get board by ID', () => {
   // runs after every tests
   afterEach(async () => {
     // create an array of deleteBoard promises
-    const arrayOfDeleteBoardPromises = boards.map(async (board) => {
-      await trelloBoardsApi.deleteBoard(board.id);
+    const arrayOfDeleteBoardPromises = boards.map(async (trelloBoard) => {
+      await trelloBoardsApi.deleteBoard(trelloBoard.id);
     });
     // delete all the created boards
     await Promise.all(arrayOfDeleteBoardPromises);
