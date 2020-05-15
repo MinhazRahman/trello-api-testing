@@ -70,6 +70,19 @@ class TrelloBoardsApi {
       qs: queryStrings,
     });
   }
+
+  /**
+ * @param {*} id
+ * @param {*} [queryStrings={}]
+ * @returns
+ * @memberof TrelloBoardsApi
+ */
+  deleteBoard(id, queryStrings = {}) {
+    return this.request.delete({
+      url: `${this.host}/1/boards/${id}`,
+      qs: queryStrings,
+    });
+  }
 }
 
 // export TrelloBoardsApi class
