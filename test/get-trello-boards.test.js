@@ -51,4 +51,29 @@ describe('Get board by ID', () => {
     expect(boardRetrieved).to.have.property('name', queryParameters.name);
     expect(boardRetrieved).to.have.property('desc', queryParameters.desc);
   });
+
+  it.only('Error returned when getting a board with non-existing ID (GET /1/boards/:id)', async () => {
+    // set query strings
+    const queryParameters = {
+      name: `${randomString()}`,
+      desc: `${randomString()}`,
+      defaultLabels: false,
+    };
+
+    // create board by passing only required parameter 'name'
+    const boardCreated = await trelloBoardsApi.createBoard(queryParameters);
+
+    // delete the board
+    const boardDeleted = await trelloBoardsApi.deleteBoard(boardCreated.id);
+    expect(boardDeleted).to.have.property('_value', null);
+
+    // try to update the board with id that doesn't exist
+    try {
+      // get a board by id
+      await trelloBoardsApi.getBoard(boardCreated.id);
+    } catch (error) {
+      expect(error).to.have.property('name', 'StatusCodeError');
+      expect(error).to.have.property('statusCode', 404);
+    }
+  });
 });
