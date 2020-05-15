@@ -2,10 +2,13 @@ const { expect } = require('chai');
 
 const TrelloBoardsApi = require('../src/TrelloBoardsApi');
 const randomString = require('../util/random-string');
-const { repeatCharacter, repeatChar } = require('../util/repeat-character');
+const {
+  board,
+} = require('../util/factory-board');
 
 describe('Create a board', () => {
   let trelloBoardsApi;
+  let boards = [];
 
   // runs before the first test
   before(async () => {
@@ -15,7 +18,17 @@ describe('Create a board', () => {
   });
 
   // runs after every tests
-  afterEach(async () => {});
+  afterEach(async () => {
+    // create an array of deleteBoard promises
+    const arrayOfDeleteBoardPromises = boards.map(async (board) => {
+      await trelloBoardsApi.deleteBoard(board.id);
+    });
+    // delete all the created boards
+    await Promise.all(arrayOfDeleteBoardPromises);
+    console.log(`DELETED ${boards.length} BOARDS`);
+    // reset the created boards
+    boards = [];
+  });
 
   it('Can create a new board by only passing required parameters (POST /1/boards/)', async () => {
     // query strings
@@ -24,6 +37,9 @@ describe('Create a board', () => {
     const boardCreated = await trelloBoardsApi.createBoard({
       name: name,
     });
+
+    // store the created board to boards array for cleaning up after each test
+    boards.push(boardCreated);
 
     // verify values from the response
     expect(boardCreated).to.have.property('id').to.be.a('string');
@@ -46,18 +62,17 @@ describe('Create a board', () => {
 
   it('Can create a new board with optional parameters (POST /1/boards/)', async () => {
     // set query strings
-    const queryStrings = {
-      name: `${randomString()}`,
-      desc: `${randomString()}`,
-      defaultLabels: false,
-    };
+    const boardToBeCreated = board();
     // create board by passing only required parameter 'name'
-    const boardCreated = await trelloBoardsApi.createBoard(queryStrings);
+    const boardCreated = await trelloBoardsApi.createBoard(boardToBeCreated);
+
+    // store the created board to boards array for cleaning up after each test
+    boards.push(boardCreated);
 
     // verify values from the response
     expect(boardCreated).to.have.property('id').to.be.a('string');
-    expect(boardCreated).to.have.property('name', queryStrings.name);
-    expect(boardCreated).to.have.property('desc', queryStrings.desc);
+    expect(boardCreated).to.have.property('name', boardToBeCreated.name);
+    expect(boardCreated).to.have.property('desc', boardToBeCreated.desc);
     expect(boardCreated, 'descData should be null').to.have.property('descData', null);
     expect(boardCreated).to.have.property('closed', false);
     expect(boardCreated).to.have.property('idOrganization', null);
@@ -74,22 +89,22 @@ describe('Create a board', () => {
   });
 
   // names array contains strings of 1, 2 and 16384 characters (works up 7596 characters)
-  const names = [randomString(1), randomString(2), randomString(7596)];
+  const names = [randomString(1), randomString(2), randomString(7500)];
   names.forEach((name) => {
     it(`Can create a new board with different length of the "name" property (POST /1/boards/) (DD), length: ${name.length}`, async () => {
       // set query strings
-      const queryStrings = {
-        name: name,
-        desc: `${randomString()}`,
-        defaultLabels: false,
-      };
+      const boardToBeCreated = { ...board(), name };
       // create board by passing only required parameter 'name'
-      const boardCreated = await trelloBoardsApi.createBoard(queryStrings);
+      const boardCreated = await trelloBoardsApi.createBoard(boardToBeCreated);
+
+      // store the created board to boards array for cleaning up after each test
+      boards.push(boardCreated);
+
       // verify values from the response
       expect(boardCreated).to.have.property('id').to.be.a('string');
-      expect(boardCreated).to.have.property('name', queryStrings.name);
-      expect(boardCreated.name).to.have.lengthOf(queryStrings.name.length);
-      expect(boardCreated).to.have.property('desc', queryStrings.desc);
+      expect(boardCreated).to.have.property('name', boardToBeCreated.name);
+      expect(boardCreated.name).to.have.lengthOf(boardToBeCreated.name.length);
+      expect(boardCreated).to.have.property('desc', boardToBeCreated.desc);
       expect(boardCreated, 'descData should be null').to.have.property('descData', null);
       expect(boardCreated).to.have.property('closed', false);
       expect(boardCreated).to.have.property('idOrganization', null);
@@ -111,14 +126,10 @@ describe('Create a board', () => {
     // query strings, works up to character length 7596
     const name = randomString(16384);
     // set query strings
-    const queryStrings = {
-      name: name,
-      desc: `${randomString()}`,
-      defaultLabels: false,
-    };
+    const boardToBeCreated = { ...board(), name };
     try {
       // create board by passing only required parameter 'name'
-      await trelloBoardsApi.createBoard(queryStrings);
+      await trelloBoardsApi.createBoard(boardToBeCreated);
     } catch (error) {
       expect(error).to.have.property('name', 'StatusCodeError');
       expect(error).to.have.property('statusCode', 400);
