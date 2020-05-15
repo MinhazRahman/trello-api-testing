@@ -2,6 +2,4 @@
 
 ## Project Configuration
 
-#
-
-1. Clone the repo and run npm install
+1. Clone the repo and run `$ npm install`
