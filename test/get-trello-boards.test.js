@@ -4,7 +4,9 @@ const {
 
 const TrelloBoardsApi = require('../src/TrelloBoardsApi');
 const randomString = require('../util/random-string');
-const board = require('../util/factory-board');
+const {
+  board,
+} = require('../util/factory-board');
 
 describe('Get board by ID', () => {
   let trelloBoardsApi;
@@ -32,14 +34,10 @@ describe('Get board by ID', () => {
 
   it('Can get a board by ID (GET /1/boards/:id)', async () => {
     // set query strings
-    const queryParameters = {
-      name: `${randomString()}`,
-      desc: `${randomString()}`,
-      defaultLabels: false,
-    };
+    const boardToBeCreated = board();
 
     // create board by passing only required parameter 'name'
-    const boardCreated = await trelloBoardsApi.createBoard(queryParameters);
+    const boardCreated = await trelloBoardsApi.createBoard(boardToBeCreated);
 
     // store the created board to boards array for cleaning up after each test
     boards.push(boardCreated);
@@ -49,20 +47,16 @@ describe('Get board by ID', () => {
 
     // verify values from response
     expect(boardRetrieved).to.have.property('id').is.a('string');
-    expect(boardRetrieved).to.have.property('name', queryParameters.name);
-    expect(boardRetrieved).to.have.property('desc', queryParameters.desc);
+    expect(boardRetrieved).to.have.property('name', boardToBeCreated.name);
+    expect(boardRetrieved).to.have.property('desc', boardToBeCreated.desc);
   });
 
   it('Error returned when getting a board with non-existing ID (GET /1/boards/:id)', async () => {
     // set query strings
-    const queryParameters = {
-      name: `${randomString()}`,
-      desc: `${randomString()}`,
-      defaultLabels: false,
-    };
+    const boardToBeCreated = board();
 
     // create board by passing only required parameter 'name'
-    const boardCreated = await trelloBoardsApi.createBoard(queryParameters);
+    const boardCreated = await trelloBoardsApi.createBoard(boardToBeCreated);
 
     // delete the board
     const boardDeleted = await trelloBoardsApi.deleteBoard(boardCreated.id);
@@ -79,7 +73,7 @@ describe('Get board by ID', () => {
   });
 
   // Notes: get board with name, desc, and starred fields
-  it.only('Can get a board with only selected board fields (GET /1/boards/:id)', async () => {
+  it('Can get a board with only selected board fields (GET /1/boards/:id)', async () => {
     // create multiple boards in parallel
     const createdBoards = await Promise.all([
       trelloBoardsApi.createBoard(board()),
@@ -104,7 +98,7 @@ describe('Get board by ID', () => {
     });
 
     // verify values from response
-    expect(boardRetrieved).to.have.property('id').is.a('string');
+    expect(boardRetrieved).to.have.property('id', id);
     expect(boardRetrieved).to.have.property('name', name);
     expect(boardRetrieved).to.have.property('desc', desc);
   });
