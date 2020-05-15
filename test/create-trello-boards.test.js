@@ -1,8 +1,13 @@
-const { expect } = require('chai');
+const {
+  expect,
+} = require('chai');
 
 const TrelloBoardsApi = require('../src/TrelloBoardsApi');
 const randomString = require('../util/random-string');
-const repeatCharacter = require('../util/repeat-character');
+const {
+  repeatCharacter,
+  repeatChar,
+} = require('../util/repeat-character');
 
 describe('Create a board', () => {
   let trelloBoardsApi;
@@ -76,7 +81,43 @@ describe('Create a board', () => {
   // names array contains strings of 1, 2 and 16384 characters (works up 7596 characters)
   const names = [repeatCharacter('X', 1), repeatCharacter('Y', 2), repeatCharacter('Z', 7596)];
   names.forEach((name) => {
-    it.only(`Can create a new board with different length of the "name" property (POST /1/boards/) (DD), length: ${name.length}`, async () => {
+    it.only(
+      `Can create a new board with different length of the "name" property (POST /1/boards/) (DD), length: ${name.length}`,
+      async () => {
+        // set query strings
+        const queryStrings = {
+          name: name,
+          desc: `${randomString()}`,
+          defaultLabels: false,
+        };
+        // create board by passing only required parameter 'name'
+        const boardCreated = await trelloBoardsApi.createBoard(queryStrings);
+        // verify values from the response
+        expect(boardCreated).to.have.property('id').to.be.a('string');
+        expect(boardCreated).to.have.property('name', queryStrings.name);
+        expect(boardCreated.name).to.have.lengthOf(queryStrings.name.length);
+        expect(boardCreated).to.have.property('desc', queryStrings.desc);
+        expect(boardCreated, 'descData should be null').to.have.property('descData', null);
+        expect(boardCreated).to.have.property('closed', false);
+        expect(boardCreated).to.have.property('idOrganization', null);
+        expect(boardCreated).to.have.property('idEnterprise', null);
+
+        expect(boardCreated.prefs).to.property('permissionLevel', 'private');
+        expect(boardCreated.prefs).to.property('voting', 'disabled');
+        expect(boardCreated.prefs).to.property('comments', 'members');
+        expect(boardCreated.prefs).to.property('invitations', 'members');
+        expect(boardCreated.prefs).to.property('selfJoin', true);
+        expect(boardCreated.prefs).to.property('cardCovers', true);
+        expect(boardCreated.prefs).to.property('background', 'blue');
+        expect(boardCreated.prefs).to.property('cardAging', 'regular');
+      });
+  });
+
+  // StatusCodeError: 400, Your browser sent a request that this server could not understand
+  it.only('Error returned when creating a new board and the max length of the "name" is greater than 16384',
+    async () => {
+      // query strings, works up to character length 7596
+      const name = repeatChar('a', 16385);
       // set query strings
       const queryStrings = {
         name: name,
@@ -85,24 +126,6 @@ describe('Create a board', () => {
       };
       // create board by passing only required parameter 'name'
       const boardCreated = await trelloBoardsApi.createBoard(queryStrings);
-      // verify values from the response
-      expect(boardCreated).to.have.property('id').to.be.a('string');
-      expect(boardCreated).to.have.property('name', queryStrings.name);
-      expect(boardCreated.name).to.have.lengthOf(queryStrings.name.length);
-      expect(boardCreated).to.have.property('desc', queryStrings.desc);
-      expect(boardCreated, 'descData should be null').to.have.property('descData', null);
-      expect(boardCreated).to.have.property('closed', false);
-      expect(boardCreated).to.have.property('idOrganization', null);
-      expect(boardCreated).to.have.property('idEnterprise', null);
-
-      expect(boardCreated.prefs).to.property('permissionLevel', 'private');
-      expect(boardCreated.prefs).to.property('voting', 'disabled');
-      expect(boardCreated.prefs).to.property('comments', 'members');
-      expect(boardCreated.prefs).to.property('invitations', 'members');
-      expect(boardCreated.prefs).to.property('selfJoin', true);
-      expect(boardCreated.prefs).to.property('cardCovers', true);
-      expect(boardCreated.prefs).to.property('background', 'blue');
-      expect(boardCreated.prefs).to.property('cardAging', 'regular');
+      console.log(boardCreated);
     });
-  });
 });
