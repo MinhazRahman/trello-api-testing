@@ -25,9 +25,10 @@ class TrelloBoardsApi {
   }
 
   /**
-   * authenticate - Authenticates API by setting an API key to the authorization header
-   * @param {String} apiKey (OPTIONAL) api key override,
-   * default API key from TRELLO_API_KEY env variable
+   * authenticate - Authenticates API by setting an API key and API token to the query string
+   * @param {String} apiKey overrides,
+   * default API key from TRELLO_API_KEY env variable and
+   * @param {String} apiToken overrides default API token from TRELLO_API_TOKEN env variable
    * will be used if apiKey is not supplied
    */
   authenticate(apiKey = TRELLO_API_KEY, apiToken = TRELLO_API_TOKEN) {
@@ -46,13 +47,26 @@ class TrelloBoardsApi {
   }
 
   /**
-   * @param {*} queryString
-   * @returns
-   * @memberof TrelloBoardsApi
-   */
+  * @param {*} [queryStrings={}]
+  * @returns
+  * @memberof TrelloBoardsApi
+  */
   createBoard(queryStrings = {}) {
     return this.request.post({
       url: `${this.host}/1/boards/`,
+      qs: queryStrings,
+    });
+  }
+
+  /**
+ * @param {*} id
+ * @param {*} [queryStrings={}]
+ * @returns
+ * @memberof TrelloBoardsApi
+ */
+  updateBoard(id, queryStrings = {}) {
+    return this.request.put({
+      url: `${this.host}/1/boards/${id}`,
       qs: queryStrings,
     });
   }
