@@ -1,6 +1,7 @@
+const faker = require('faker');
 // creates random string
-function randomString() {
-  return Math.random().toString(36).slice(2);
+function randomString(length = 8) {
+  return faker.random.alphaNumeric(length);
 }
 
 // export randomString function

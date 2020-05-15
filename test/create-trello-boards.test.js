@@ -79,9 +79,9 @@ describe('Create a board', () => {
   });
 
   // names array contains strings of 1, 2 and 16384 characters (works up 7596 characters)
-  const names = [repeatCharacter('X', 1), repeatCharacter('Y', 2), repeatCharacter('Z', 7596)];
+  const names = [randomString(1), randomString(2), randomString(7596)];
   names.forEach((name) => {
-    it.only(
+    it(
       `Can create a new board with different length of the "name" property (POST /1/boards/) (DD), length: ${name.length}`,
       async () => {
         // set query strings
@@ -117,15 +117,19 @@ describe('Create a board', () => {
   it.only('Error returned when creating a new board and the max length of the "name" is greater than 16384',
     async () => {
       // query strings, works up to character length 7596
-      const name = repeatChar('a', 16385);
+      const name = randomString(16384);
       // set query strings
       const queryStrings = {
         name: name,
         desc: `${randomString()}`,
         defaultLabels: false,
       };
-      // create board by passing only required parameter 'name'
-      const boardCreated = await trelloBoardsApi.createBoard(queryStrings);
-      console.log(boardCreated);
+      try {
+        // create board by passing only required parameter 'name'
+        await trelloBoardsApi.createBoard(queryStrings);
+      } catch (error) {
+        expect(error).to.have.property('name', 'StatusCodeError');
+        expect(error).to.have.property('statusCode', 400);
+      }
     });
 });
