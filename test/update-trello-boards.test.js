@@ -52,7 +52,7 @@ describe('Update a board', () => {
     expect(updatedBoard).to.have.property('desc', boardCreated.desc);
   });
 
-  it.only('Can update multiple properties of a board by id (PUT /1/boards/:id)', async () => {
+  it('Can update multiple properties of a board by id (PUT /1/boards/:id)', async () => {
     // set query strings
     const queryParameters = {
       name: `${randomString()}`,
@@ -75,5 +75,32 @@ describe('Update a board', () => {
     expect(updatedBoard).to.have.property('id', boardCreated.id);
     expect(updatedBoard).to.have.property('name', updatedQueryParameters.name);
     expect(updatedBoard).to.have.property('desc', updatedQueryParameters.desc);
+  });
+
+  it("Error returned when updating a board with the ID that doesn't exist (PUT /1/boards/:id)", async () => {
+    // set query strings
+    const queryParameters = {
+      name: `${randomString()}`,
+      desc: `${randomString()}`,
+      defaultLabels: false,
+    };
+
+    // create board by passing only required parameter 'name'
+    const boardCreated = await trelloBoardsApi.createBoard(queryParameters);
+
+    // delete the board
+    const boardDeleted = await trelloBoardsApi.deleteBoard(boardCreated.id);
+    expect(boardDeleted).to.have.property('_value', null);
+
+    // set different set of query parameters to update the board, (update name and description)
+    const updatedQueryParameters = { ...queryParameters, name: `${randomString()}`, desc: `${randomString()}` };
+
+    // try to update the board with id that doesn't exist
+    try {
+      await trelloBoardsApi.updateBoard(boardCreated.id, updatedQueryParameters);
+    } catch (error) {
+      expect(error).to.have.property('name', 'StatusCodeError');
+      expect(error).to.have.property('statusCode', 404);
+    }
   });
 });
