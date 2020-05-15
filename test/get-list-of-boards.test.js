@@ -20,23 +20,40 @@ describe('Get a list of boards for a user', () => {
   });
 
   // runs after every tests
+  beforeEach(async () => {
+    // get the list of boards
+    const listOfBoards = await trelloBoardsApi.getListOfBoards();
+    // copy the listOfBoards to  boards array
+    boards = [...listOfBoards];
+    // create an array of deleteBoard promises
+    const arrayOfDeleteBoardPromises = boards.map(async (trelloBoard) => {
+      await trelloBoardsApi.deleteBoard(trelloBoard.id);
+    });
+      // delete all the created boards
+    await Promise.all(arrayOfDeleteBoardPromises);
+    console.log(`BEFORE DELETED ${boards.length} BOARDS`);
+    // reset the created boards
+    boards = [];
+  });
+
+  // runs after every tests
   afterEach(async () => {
     // get the list of boards
     const listOfBoards = await trelloBoardsApi.getListOfBoards();
     // copy the listOfBoards to  boards array
-    boards = [...listOfBoards.slice(0, 2)];
+    boards = [...listOfBoards];
     // create an array of deleteBoard promises
     const arrayOfDeleteBoardPromises = boards.map(async (trelloBoard) => {
       await trelloBoardsApi.deleteBoard(trelloBoard.id);
     });
     // delete all the created boards
     await Promise.all(arrayOfDeleteBoardPromises);
-    console.log(`DELETED ${boards.length} BOARDS`);
+    console.log(`AFTER DELETED ${boards.length} BOARDS`);
     // reset the created boards
     boards = [];
   });
 
-  it.only('Can get a list of boards for a user with only 1 board (GET /1/members/me/boards)', async () => {
+  it('Can get a list of boards for a user with only 1 board (GET /1/members/me/boards)', async () => {
     // set query strings
     const boardToBeCreated = board();
 
@@ -53,5 +70,23 @@ describe('Get a list of boards for a user', () => {
     expect(listOfBoards[0]).to.have.property('id').is.a('string');
     expect(listOfBoards[0]).to.have.property('name', listOfBoards[0].name);
     expect(listOfBoards[0]).to.have.property('desc', listOfBoards[0].desc);
+  });
+
+  it.only('Can get a list of boards for a user with multiple boards (GET /1/members/me/boards)', async () => {
+    // create multiple boards in parallel
+    const createdBoards = await Promise.all([
+      trelloBoardsApi.createBoard(board()),
+      trelloBoardsApi.createBoard(board()),
+      trelloBoardsApi.createBoard(board()),
+    ]);
+
+    // store the created board to boards array for cleaning up after each test
+    boards = [...createdBoards];
+
+    // get a board by id
+    const listOfBoards = await trelloBoardsApi.getListOfBoards();
+
+    // verify values from response
+    expect(listOfBoards).to.have.lengthOf(createdBoards.length);
   });
 });
