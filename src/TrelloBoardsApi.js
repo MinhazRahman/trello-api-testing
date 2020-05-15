@@ -1,7 +1,11 @@
 require('dotenv').config();
 const request = require('request-promise');
 
-const { TRELLO_HOST, TRELLO_API_KEY, TRELLO_API_TOKEN } = process.env;
+const {
+  TRELLO_HOST,
+  TRELLO_API_KEY,
+  TRELLO_API_TOKEN
+} = process.env;
 
 class TrelloBoardsApi {
   /**
@@ -47,10 +51,10 @@ class TrelloBoardsApi {
   }
 
   /**
-  * @param {*} [queryStrings={}]
-  * @returns
-  * @memberof TrelloBoardsApi
-  */
+   * @param {*} [queryStrings={}]
+   * @returns
+   * @memberof TrelloBoardsApi
+   */
   createBoard(queryStrings = {}) {
     return this.request.post({
       url: `${this.host}/1/boards/`,
@@ -59,11 +63,11 @@ class TrelloBoardsApi {
   }
 
   /**
- * @param {*} id
- * @param {*} [queryStrings={}]
- * @returns
- * @memberof TrelloBoardsApi
- */
+   * @param {*} id
+   * @param {*} [queryStrings={}]
+   * @returns
+   * @memberof TrelloBoardsApi
+   */
   updateBoard(id, queryStrings = {}) {
     return this.request.put({
       url: `${this.host}/1/boards/${id}`,
@@ -72,11 +76,11 @@ class TrelloBoardsApi {
   }
 
   /** Delete a board by ID
- * @param {*} id
- * @param {*} [queryStrings={}]
- * @returns
- * @memberof TrelloBoardsApi
- */
+   * @param {*} id
+   * @param {*} [queryStrings={}]
+   * @returns
+   * @memberof TrelloBoardsApi
+   */
   deleteBoard(id, queryStrings = {}) {
     return this.request.delete({
       url: `${this.host}/1/boards/${id}`,
@@ -85,11 +89,11 @@ class TrelloBoardsApi {
   }
 
   /** Get a board by ID
- * @param {*} id
- * @param {*} [queryStrings={}]
- * @returns
- * @memberof TrelloBoardsApi
- */
+   * @param {*} id
+   * @param {*} [queryStrings={}]
+   * @returns
+   * @memberof TrelloBoardsApi
+   */
   getBoard(id, queryStrings = {}) {
     return this.request.get({
       url: `${this.host}/1/boards/${id}`,
@@ -98,12 +102,12 @@ class TrelloBoardsApi {
   }
 
   /** Get all trello boards
- * @returns
- * @memberof TrelloBoardsApi
- */
+   * @returns
+   * @memberof TrelloBoardsApi
+   */
   getListOfBoards(queryStrings = {}) {
     return this.request.get({
-      url: `${this.host}/1/member/me/boards`,
+      url: `${this.host}/1/members/me/boards`,
       qs: queryStrings,
     });
   }
