@@ -19,25 +19,7 @@ describe('Get a list of boards for a user', () => {
     trelloBoardsApi.authenticate();
   });
 
-  // runs after every tests
-  beforeEach(async () => {
-    // get the list of boards
-    const listOfBoards = await trelloBoardsApi.getListOfBoards();
-    // copy the listOfBoards to  boards array
-    boards = [...listOfBoards];
-    // create an array of deleteBoard promises
-    const arrayOfDeleteBoardPromises = boards.map(async (trelloBoard) => {
-      await trelloBoardsApi.deleteBoard(trelloBoard.id);
-    });
-      // delete all the created boards
-    await Promise.all(arrayOfDeleteBoardPromises);
-    console.log(`BEFORE DELETED ${boards.length} BOARDS`);
-    // reset the created boards
-    boards = [];
-  });
-
-  // runs after every tests
-  afterEach(async () => {
+  async function cleanUp() {
     // get the list of boards
     const listOfBoards = await trelloBoardsApi.getListOfBoards();
     // copy the listOfBoards to  boards array
@@ -48,9 +30,19 @@ describe('Get a list of boards for a user', () => {
     });
     // delete all the created boards
     await Promise.all(arrayOfDeleteBoardPromises);
-    console.log(`AFTER DELETED ${boards.length} BOARDS`);
+    console.log(`DELETED ${boards.length} BOARDS`);
     // reset the created boards
     boards = [];
+  }
+
+  // runs after every tests
+  beforeEach(async () => {
+    await cleanUp();
+  });
+
+  // runs after every tests
+  afterEach(async () => {
+    await cleanUp();
   });
 
   it('Can get a list of boards for a user with only 1 board (GET /1/members/me/boards)', async () => {
