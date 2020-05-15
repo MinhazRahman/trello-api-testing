@@ -96,6 +96,17 @@ class TrelloBoardsApi {
       qs: queryStrings,
     });
   }
+
+  /** Get all trello boards
+ * @returns
+ * @memberof TrelloBoardsApi
+ */
+  getListOfBoards(queryStrings = {}) {
+    return this.request.get({
+      url: `${this.host}/1/member/me/boards`,
+      qs: queryStrings,
+    });
+  }
 }
 
 // export TrelloBoardsApi class
