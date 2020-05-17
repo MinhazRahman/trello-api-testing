@@ -59,12 +59,16 @@ describe('Get a list of boards for a user', () => {
     const listOfBoards = await trelloBoardsApi.getListOfBoards();
 
     // verify values from response
-    expect(listOfBoards[0]).to.have.property('id').is.a('string');
-    expect(listOfBoards[0]).to.have.property('name', listOfBoards[0].name);
-    expect(listOfBoards[0]).to.have.property('desc', listOfBoards[0].desc);
+    expect(listOfBoards).to.have.lengthOf(1);
+    listOfBoards.forEach((trelloBoard) => {
+      expect(trelloBoard).to.have.property('id').is.a('string');
+      expect(trelloBoard).to.have.property('name', boardCreated.name);
+      expect(trelloBoard).to.have.property('desc', boardCreated.desc);
+      expect(trelloBoard).to.have.property('closed', false);
+    });
   });
 
-  it.only('Can get a list of boards for a user with multiple boards (GET /1/members/me/boards)', async () => {
+  it('Can get a list of boards for a user with multiple boards (GET /1/members/me/boards)', async () => {
     // create multiple boards in parallel
     const createdBoards = await Promise.all([
       await trelloBoardsApi.createBoard({
@@ -86,7 +90,6 @@ describe('Get a list of boards for a user', () => {
 
     // get a board by id
     const listOfBoards = await trelloBoardsApi.getListOfBoards();
-    // console.log(listOfBoards);
 
     // verify values from response
     expect(listOfBoards).to.have.lengthOf(createdBoards.length);
