@@ -13,4 +13,6 @@ function board() {
 }
 
 // export randomString function
-module.exports = { board };
+module.exports = {
+  board,
+};

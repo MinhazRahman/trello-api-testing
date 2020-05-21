@@ -37,7 +37,7 @@ describe('Get a list of boards for a user', () => {
 
   // runs after every tests
   beforeEach(async () => {
-    await cleanUp();
+    // await cleanUp();
   });
 
   // runs after every tests
@@ -88,20 +88,99 @@ describe('Get a list of boards for a user', () => {
     // store the created board to boards array for cleaning up after each test
     boards = [...createdBoards];
 
-    // get a board by id
+    // get list of boards
     const listOfBoards = await trelloBoardsApi.getListOfBoards();
 
     // verify values from response
     expect(listOfBoards).to.have.lengthOf(createdBoards.length);
     listOfBoards.forEach((trelloBoard, index) => {
-      expect(trelloBoard).to.have.property('id').is.a('string');
+      expect(trelloBoard).to.have.property('id', createdBoards[index].id);
       expect(trelloBoard).to.have.property('name', createdBoards[index].name);
       expect(trelloBoard).to.have.property('desc', createdBoards[index].desc);
       expect(trelloBoard).to.have.property('closed', false);
     });
   });
 
+  // Note: create three boards, get the selected fields on each board
+  it('Can get a list of boards with filtered fields (GET /1/members/me/boards)', async () => {
+    // create multiple boards in parallel
+    const createdBoards = await Promise.all([
+      await trelloBoardsApi.createBoard({
+        ...board(),
+        name: 'board1',
+        starred: true,
+      }),
+      await trelloBoardsApi.createBoard({
+        ...board(),
+        name: 'board2',
+        starred: false,
+      }),
+      await trelloBoardsApi.createBoard({
+        ...board(),
+        name: 'board3',
+        starred: true,
+      }),
+    ]);
+
+    // store the created board to boards array for cleaning up after each test
+    boards = [...createdBoards];
+
+    // get list of boards with name, url and starred fields
+    const listOfBoards = await trelloBoardsApi.getListOfBoards({
+      fields: 'starred,name,url',
+    });
+
+    console.log(listOfBoards);
+  });
+
   // Note: create two boards, one starred and another non-starred.
   // Apply "filter" parameter to only get starred boards
-  it('Can get filtered list of boards for a user (GET /1/members/me/boards)', async () => {});
+  it('Can get filtered list of boards for a user (GET /1/members/me/boards)', async () => {
+    // create multiple boards in parallel
+    const arrayOfCreatedBoards = await Promise.all([
+      await trelloBoardsApi.createBoard(
+        {
+          ...board(),
+          name: 'board1',
+          starred: true,
+        },
+      ),
+      await trelloBoardsApi.createBoard(
+        {
+          ...board(),
+          name: 'board2',
+          starred: false,
+        },
+      ),
+    ]);
+
+    console.log(arrayOfCreatedBoards);
+    expect(arrayOfCreatedBoards[0]).to.have.property('id');
+
+    // get list of starred boards
+    const listOfBoards = await trelloBoardsApi.getListOfBoards();
+
+    console.log(listOfBoards);
+
+    /*     // store the created board to boards array for cleaning up after each test
+    boards = [board1, board2];
+    console.log(board1);
+
+    // set different set of query parameters to update the board
+    const boardToBeUpdated = {
+      ...board1,
+      starred: true,
+    };
+    // update the board
+    const updatedBoard = await trelloBoardsApi.updateBoard(board1.id, boardToBeUpdated);
+    console.log(updatedBoard);
+
+    // get list of starred boards
+    const listOfBoards = await trelloBoardsApi.getListOfBoards({
+      fields: 'starred',
+      filter: 'starred',
+    });
+
+    console.log(listOfBoards); */
+  });
 });
