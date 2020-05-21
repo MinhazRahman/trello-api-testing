@@ -37,7 +37,7 @@ describe('Delete board by ID', () => {
     await cleanUp();
   });
 
-  it.only('Can delete a board by ID (DELETE /1/boards/:id)', async () => {
+  it('Can delete a board by ID (DELETE /1/boards/:id)', async () => {
     // create multiple boards in parallel
     const [board1, board2] = await Promise.all([
       await trelloBoardsApi.createBoard({
@@ -65,5 +65,26 @@ describe('Delete board by ID', () => {
       expect(error).to.has.property('statusCode', 404);
     }
   });
-  it('Error returned when deleting an already deleted board (DELETE /1/boards/:id)', async () => {});
+
+  it.only('Error returned when deleting an already deleted board (DELETE /1/boards/:id)', async () => {
+    // create multiple boards in parallel
+    const [board1, board2] = await Promise.all([
+      await trelloBoardsApi.createBoard({
+        ...board(),
+        name: 'board1',
+      }),
+    ]);
+
+    // delete a board by id
+    const response = await trelloBoardsApi.deleteBoard(board1.id);
+    expect(response).to.have.property('_value', null);
+
+    // will throw error if we try to delete the deleted board again
+    try {
+      await trelloBoardsApi.deleteBoard(board1.id);
+    } catch (error) {
+      expect(error).to.have.property('name', 'StatusCodeError');
+      expect(error).to.has.property('statusCode', 404);
+    }
+  });
 });
