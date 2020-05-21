@@ -138,20 +138,16 @@ describe('Get a list of boards for a user', () => {
   it('Can get filtered list of boards for a user (GET /1/members/me/boards)', async () => {
     // create multiple boards in parallel
     const arrayOfCreatedBoards = await Promise.all([
-      await trelloBoardsApi.createBoard(
-        {
-          ...board(),
-          name: 'board1',
-          starred: true,
-        },
-      ),
-      await trelloBoardsApi.createBoard(
-        {
-          ...board(),
-          name: 'board2',
-          starred: false,
-        },
-      ),
+      await trelloBoardsApi.createBoard({
+        ...board(),
+        name: 'board1',
+        starred: true,
+      }, ),
+      await trelloBoardsApi.createBoard({
+        ...board(),
+        name: 'board2',
+        starred: false,
+      }, ),
     ]);
 
     console.log(arrayOfCreatedBoards);

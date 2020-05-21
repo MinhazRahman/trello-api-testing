@@ -3,7 +3,6 @@ const {
 } = require('chai');
 
 const TrelloBoardsApi = require('../src/TrelloBoardsApi');
-const randomString = require('../util/random-string');
 const {
   board,
 } = require('../util/factory-board');
@@ -66,14 +65,21 @@ describe('Delete board by ID', () => {
     }
   });
 
-  it.only('Error returned when deleting an already deleted board (DELETE /1/boards/:id)', async () => {
+  it('Error returned when deleting an already deleted board (DELETE /1/boards/:id)', async () => {
     // create multiple boards in parallel
     const [board1, board2] = await Promise.all([
       await trelloBoardsApi.createBoard({
         ...board(),
         name: 'board1',
       }),
+      await trelloBoardsApi.createBoard({
+        ...board(),
+        name: 'board2',
+      }),
     ]);
+
+    // store the created board to boards array for cleaning up after each test
+    boards.push(board2);
 
     // delete a board by id
     const response = await trelloBoardsApi.deleteBoard(board1.id);
